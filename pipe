@@ -1,0 +1,73 @@
+pipeline {
+    agent any
+
+    environment {
+        REPO_URL = 'https://github.com/Night-mask/WEB.git'
+        BRANCH_NAME = 'main'
+        DOCKER_IMAGE = 'my-flask-app:latest'
+    }
+
+    stages {
+        stage('GIT Checkout') {
+            steps {
+                git branch: "${BRANCH_NAME}", url: "${REPO_URL}"
+            }
+        }
+
+        stage('Verify Files') {
+            steps {
+                script {
+                    // Print current working directory and list files to verify presence of fl.py and Dockerfile
+                    sh 'echo "Current directory: $(pwd)"'
+                    sh 'ls -la'
+                }
+            }
+        }
+
+        stage('Check Python') {
+            steps {
+                script {
+                    // Verify Python installation and version
+                    sh 'python3 --version'
+                }
+            }
+        }
+
+        stage('Check Docker') {
+            steps {
+                script {
+                    // Verify Docker installation and version
+                    sh 'docker --version'
+                }
+            }
+        }
+
+        stage('Build Docker Image') {
+            steps {
+                script {
+                    // Navigate to the directory containing Dockerfile and build the Docker image
+                    docker.build("${DOCKER_IMAGE}", "-f dockerflask-Dockerfile .")
+                }
+            }
+        }
+
+        stage('Run Docker Container') {
+            steps {
+                script {
+                    // Run the Docker container and pass arguments to the script
+                    sh 'docker run -d -it --name flask-app -p 5000:5000 ${DOCKER_IMAGE}'
+                }
+            }
+        }
+    }
+
+    post {
+        success {
+            echo 'Pipeline completed successfully.'
+        }
+        failure {
+            echo 'Pipeline failed.'
+        }
+    }
+}
+
