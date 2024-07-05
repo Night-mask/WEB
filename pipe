@@ -46,7 +46,7 @@ pipeline {
             steps {
                 script {
                     // Navigate to the directory containing Dockerfile and build the Docker image
-                    docker.build("${DOCKER_IMAGE}", "-f dockerflask-Dockerfile .")
+                    docker.build("${DOCKER_IMAGE}", "-f dockerflask .")
                 }
             }
         }
